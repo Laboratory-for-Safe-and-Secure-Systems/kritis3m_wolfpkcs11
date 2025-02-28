@@ -26,7 +26,7 @@ set(CMAKE_INSTALL_LIBDIR "lib")
 
 
 # Pull in WolfSSL as dependency (either as an external library or as a subproject)
-if(KRITIS3M_ASL_EXTERNAL_WOLFSSL)
+if(KRITIS3M_WOLFPKCS11_EXTERNAL_WOLFSSL)
         # Search for system-wide installed libraries in both lib and lib64 paths
         set(FIND_LIBRARY_USE_LIB32_PATHS TRUE)
         set(FIND_LIBRARY_USE_LIB64_PATHS TRUE)
@@ -34,7 +34,7 @@ if(KRITIS3M_ASL_EXTERNAL_WOLFSSL)
         # Search for system-wide installed WolfSSL
         find_package(wolfssl REQUIRED)
 
-else(KRITIS3M_ASL_EXTERNAL_WOLFSSL)
+else(KRITIS3M_WOLFPKCS11_EXTERNAL_WOLFSSL)
         # Pull in kritis3m_wolfssl as a dependency
         FetchContent_Declare(kritis3m_wolfssl
                 GIT_REPOSITORY          git@github.com:Laboratory-for-Safe-and-Secure-Systems/kritis3m_wolfssl.git
@@ -53,7 +53,7 @@ else(KRITIS3M_ASL_EXTERNAL_WOLFSSL)
         FetchContent_MakeAvailable(kritis3m_wolfssl)
 
         set(BUILD_SHARED_LIBS ON)
-endif(KRITIS3M_ASL_EXTERNAL_WOLFSSL)
+endif(KRITIS3M_WOLFPKCS11_EXTERNAL_WOLFSSL)
 
 
 # External repositories we need
@@ -72,11 +72,13 @@ FetchContent_Declare(kritis3m_applications
 # Actually add the external repositories to our project
 FetchContent_MakeAvailable(wolfpkcs11)
 
-set(ENABLE_TCP_ECHO_SERVER OFF)
+set(ENABLE_ECHO_SERVER OFF)
 set(ENABLE_TCP_CLIENT_STDIN_BRIDGE OFF)
 set(ENABLE_TLS_PROXY OFF)
 set(ENABLE_NETWORK_TESTER OFF)
 set(ENABLE_MANAGEMENT OFF)
+set(ENABLE_HTTP_LIBS OFF)
+set(ENABLE_QUEST_LIB OFF)
 FetchContent_GetProperties(kritis3m_applications)
 if(NOT kritis3m_applications_POPULATED)
         FetchContent_Populate(kritis3m_applications)
