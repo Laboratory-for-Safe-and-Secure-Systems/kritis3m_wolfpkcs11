@@ -10,6 +10,7 @@
 
 #include "wolfssl/options.h"
 
+#include "wolfssl/wolfcrypt/logging.h"
 #include "wolfssl/wolfcrypt/wc_pkcs11.h"
 
 LOG_MODULE_CREATE(wolfpkcs11_provision);
@@ -36,13 +37,19 @@ void print_help(char* prog_name)
 {
         printf("Usage: %s [OPTIONS]\r\n", prog_name);
         printf("Options:\r\n");
-        printf("  --module_label <label>       Label of the PKCS#11 module\r\n");
-        printf("  --so_pin <pin>               Security Officer PIN of the PKCS#11 module\r\n");
-        printf("  --user_pin <pin>             User PIN of the PKCS#11 module\r\n");
-        printf("  --module_path <path>         Path to the PKCS#11 module\r\n");
-        printf("  -v --verbose                 Enable verbose output\r\n");
-        printf("  -d --debug                   Enable debug output\r\n");
-        printf("  -h --help                    Print this help\r\n");
+        printf("  --module_label <label>  Label of the PKCS#11 module\r\n");
+        printf("  --so_pin <pin>          Security Officer PIN of the PKCS#11 module\r\n");
+        printf("  --user_pin <pin>        User PIN of the PKCS#11 module\r\n");
+        printf("  --module_path <path>    Path to the PKCS#11 module\r\n");
+        printf("  -v --verbose            Enable verbose output\r\n");
+        printf("  -d --debug              Enable debug output\r\n");
+        printf("  -h --help               Print this help\r\n");
+}
+
+void wolfssl_logging_callback(int level, const char* str)
+{
+        (void) level;
+        LOG_DEBUG("%s", str);
 }
 
 int main(int argc, char** argv)
@@ -106,6 +113,15 @@ int main(int argc, char** argv)
                 }
         }
 
+        if (LOG_LVL_GET() == LOG_LVL_DEBUG)
+        {
+                wolfSSL_SetLoggingCb(wolfssl_logging_callback);
+                wolfSSL_Debugging_ON();
+        }
+
+        /* Init WolfCrypt library */
+        wolfCrypt_Init();
+
         /* Initialize the PKCS#11 library */
         int pkcs11_version = WC_PCKS11VERSION_3_2;
         ret = wc_Pkcs11_Initialize_ex(&device, modulePath, NULL, &pkcs11_version, "PKCS 11", &rv);
@@ -115,7 +131,8 @@ int main(int argc, char** argv)
 
         deviceInitialized = true;
 
-        /* Initialize token. This sets the module label and the security officer PIN */
+        /* Initialize token. This sets the module label and the security officer PIN
+         */
         rv = device.func->C_InitToken(1,
                                       (CK_UTF8CHAR_PTR) soPin,
                                       strlen(soPin),
