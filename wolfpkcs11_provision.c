@@ -127,7 +127,28 @@ int main(int argc, char** argv)
         ret = wc_Pkcs11_Initialize_ex(&device, modulePath, NULL, &pkcs11_version, "PKCS 11", &rv);
         if (ret != 0)
                 ERROR_OUT("PKCS#11 library initialization failed: %d", ret);
-        LOG_DEBUG("PKCS#11 version: %d", device.version);
+
+        switch (device.version)
+        {
+        case WC_PCKS11VERSION_2_20:
+                LOG_DEBUG("PKCS#11 version 2.20");
+                break;
+        case WC_PCKS11VERSION_2_40:
+                LOG_DEBUG("PKCS#11 version 2.40");
+                break;
+        case WC_PCKS11VERSION_3_0:
+                LOG_DEBUG("PKCS#11 version 3.0");
+                break;
+        case WC_PCKS11VERSION_3_1:
+                LOG_DEBUG("PKCS#11 version 3.1");
+                break;
+        case WC_PCKS11VERSION_3_2:
+                LOG_DEBUG("PKCS#11 version 3.2");
+                break;
+        default:
+                LOG_DEBUG("PKCS#11 version unknown");
+                break;
+        }
 
         deviceInitialized = true;
 
@@ -172,6 +193,8 @@ int main(int argc, char** argv)
         ret = wc_Pkcs11Token_Open(&token, 1);
         if (ret != 0)
                 ERROR_OUT("Unable to open user session: %d", ret);
+
+        LOG_INFO("Token initialized successfully with label: %s", moduleLabel);
 
 exit:
         if (tokenInitialized)
